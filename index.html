@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitPredict - Previsão para Academia</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .form-section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+            border-left: 4px solid #ee5a24;
+            padding-left: 15px;
+        }
+
+        .upload-area {
+            border: 2px dashed #bdc3c7;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .upload-area:hover {
+            border-color: #ee5a24;
+            background: #f8f9fa;
+        }
+
+        .upload-icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+            color: #7f8c8d;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ecf0f1;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #ee5a24;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #ee5a24, #ff6b6b);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(238, 90, 36, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .resultado {
+            margin-top: 30px;
+            padding: 25px;
+            color: white;
+            border-radius: 10px;
+            text-align: center;
+            display: none;
+        }
+
+        .resultado.recorrentes {
+            background: linear-gradient(135deg, #00b894, #00a085);
+        }
+
+        .resultado.agregadores {
+            background: linear-gradient(135deg, #4ECDC4, #45B7D1);
+        }
+
+        .resultado.total {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        .resultado h3 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+
+        .resultado-numero {
+            font-size: 3em;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #ee5a24;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .file-name {
+            margin-top: 10px;
+            color: #7f8c8d;
+            font-style: italic;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* SEÇÃO DE MÉTRICAS MAIS LARGA */
+        .metricas-outer {
+            margin-top: 30px;
+            width: 100%;
+        }
+
+        .metricas-section {
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #ee5a24;
+            width: 100%;
+        }
+
+        .metricas-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .metrica-card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border: 1px solid #e9ecef;
+            transition: transform 0.2s ease;
+            min-height: 180px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .metrica-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .metrica-icon {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+        }
+
+        .metrica-value {
+            font-size: 2.2em;
+            font-weight: bold;
+            color: #ee5a24;
+            margin: 10px 0;
+        }
+
+        .metrica-label {
+            color: #2c3e50;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+
+        .metrica-desc {
+            color: #6c757d;
+            font-size: 0.9em;
+        }
+
+        .metricas-detalhes {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin: 25px 0;
+            border: 1px solid #e9ecef;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .metricas-detalhes h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #ee5a24;
+            padding-bottom: 12px;
+            font-size: 1.4em;
+        }
+
+        .detalhe-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 0;
+            border-bottom: 1px solid #e9ecef;
+            align-items: center;
+            font-size: 1.1em;
+        }
+
+        .detalhe-item:last-child {
+            border-bottom: none;
+        }
+
+        .detalhe-item span {
+            color: #2c3e50;
+            font-weight: 500;
+        }
+
+        .detalhe-item strong {
+            color: #ee5a24;
+            font-size: 1.1em;
+        }
+
+        .grafico-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-top: 25px;
+            border: 1px solid #e9ecef;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .grafico-container h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.4em;
+            border-bottom: 3px solid #ee5a24;
+            padding-bottom: 12px;
+        }
+
+        /* Layout para telas maiores */
+        @media (min-width: 1200px) {
+            .container {
+                max-width: 1200px;
+            }
+            
+            .metricas-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            .content {
+                padding: 50px;
+            }
+        }
+
+        @media (min-width: 768px) and (max-width: 1199px) {
+            .container {
+                max-width: 1000px;
+            }
+            
+            .metricas-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💪 Ultra Predict</h1>
+            <p>Sistema Inteligente de Previsão para Ultra Academia</p>
+        </div>
+
+        <div class="content">
+            <!-- Seção de Upload -->
+            <div class="form-section">
+                <h2 class="section-title">📊 Dados Demográficos</h2>
+                <div class="upload-area" onclick="document.getElementById('planilha').click()">
+                    <div class="upload-icon">📁</div>
+                    <h3>Carregue a Planilha Demográfica</h3>
+                    <p>Arraste ou clique para fazer upload do arquivo Excel</p>
+                    <input type="file" id="planilha" name="planilha" accept=".xlsx,.xls" style="display: none;" onchange="mostrarNomeArquivo()">
+                    <div id="fileName" class="file-name"></div>
+                </div>
+            </div>
+
+            <!-- Seção de Dados da Academia -->
+            <div class="form-section">
+                <h2 class="section-title">🏋️ Dados da Academia</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="vagas">💺 Vagas Disponíveis</label>
+                        <input type="number" id="vagas" name="vagas" placeholder="Ex: 100" min="0">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="metragem">📐 Metragem (m²)</label>
+                        <input type="number" id="metragem" name="metragem" placeholder="Ex: 500" min="0">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="concorrentes">⚔️ Concorrentes na Área</label>
+                        <input type="number" id="concorrentes" name="concorrentes" placeholder="Ex: 3" min="0">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botão de Previsão -->
+            <button class="btn" onclick="fazerPrevisao()">
+                🎯 Calcular Previsão de Alunos
+            </button>
+
+            <!-- Loading -->
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Calculando previsão...</p>
+            </div>
+
+            <!-- Resultado Recorrentes -->
+            <div class="resultado recorrentes" id="resultado">
+                <h3>✅ Previsão Alunos Recorrentes</h3>
+                <div class="resultado-numero" id="previsaoNumero">0</div>
+                <p>alunos previstos diretamente na academia</p>
+            </div>
+
+            <!-- Resultado Agregadores -->
+            <div class="resultado agregadores" id="resultadoAgregadores" style="display: none;">
+                <h3>✅ Previsão Agregadores (Gympass/Totalpass)</h3>
+                <div class="resultado-numero" id="previsaoAgregadoresNumero">0</div>
+                <p>alunos previstos via agregadores</p>
+            </div>
+
+            <!-- Resultado Total -->
+            <div class="resultado total" id="resultadoTotal" style="display: none;">
+                <h3>🏆 Total Geral de Alunos</h3>
+                <div class="resultado-numero" id="previsaoTotalNumero">0</div>
+                <p>alunos totais previstos (recorrentes + agregadores)</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SEÇÃO DE MÉTRICAS SEPARADA E MAIS LARGA -->
+    <div class="container metricas-outer" id="metricasSection" style="display: none; margin-top: 30px;">
+        <div class="header">
+            <h2>📈 Métricas e Estatísticas</h2>
+            <p>Detalhes técnicos das previsões realizadas</p>
+        </div>
+        
+        <div class="content">
+            <div class="metricas-section">
+                <h2 class="section-title">📊 Métricas dos Modelos</h2>
+                
+                <div class="metricas-grid">
+                    <!-- Métricas Recorrentes -->
+                    <div class="metrica-card">
+                        <div class="metrica-icon">🎯</div>
+                        <div class="metrica-value" id="metricaR2Recorrentes">0.894</div>
+                        <div class="metrica-label">R² Recorrentes</div>
+                        <div class="metrica-desc">89.4% de precisão</div>
+                    </div>
+                    
+                    <div class="metrica-card">
+                        <div class="metrica-icon">📊</div>
+                        <div class="metrica-value" id="metricaPrevisaoRecorrentes">0</div>
+                        <div class="metrica-label">Previsão Recorrentes</div>
+                        <div class="metrica-desc">Alunos diretos</div>
+                    </div>
+                    
+                    <!-- Métricas Agregadores -->
+                    <div class="metrica-card">
+                        <div class="metrica-icon">🤝</div>
+                        <div class="metrica-value" id="metricaR2Agregadores">0.85</div>
+                        <div class="metrica-label">R² Agregadores</div>
+                        <div class="metrica-desc">85% de precisão</div>
+                    </div>
+                    
+                    <div class="metrica-card">
+                        <div class="metrica-icon">📊</div>
+                        <div class="metrica-value" id="metricaPrevisaoAgregadores">0</div>
+                        <div class="metrica-label">Previsão Agregadores</div>
+                        <div class="metrica-desc">Gympass/Totalpass</div>
+                    </div>
+                </div>
+
+                <!-- Detalhes das Métricas - Recorrentes -->
+                <div class="metricas-detalhes">
+                    <h3>📋 Estatísticas Detalhadas - Recorrentes</h3>
+                    <div class="detalhe-item">
+                        <span>🎯 Coeficiente de Determinação (R²):</span>
+                        <strong id="r2ValueRecorrentes">0.8944</strong>
+                    </div>
+                    <div class="detalhe-item">
+                        <span>📐 RMSE (Root Mean Square Error):</span>
+                        <strong id="rmseValueRecorrentes">200.09</strong>
+                    </div>
+                    <div class="detalhe-item">
+                        <span>📏 MAE (Mean Absolute Error):</span>
+                        <strong id="maeValueRecorrentes">140.46</strong>
+                    </div>
+                    <div class="detalhe-item">
+                        <span>📊 Intervalo de Confiança (90%):</span>
+                        <strong id="intervaloConfiancaRecorrentes">0 - 0</strong>
+                    </div>
+                </div>
+
+                <!-- Detalhes das Métricas - Agregadores -->
+                <div class="metricas-detalhes">
+                    <h3>📋 Estatísticas Detalhadas - Agregadores</h3>
+                    <div class="detalhe-item">
+                        <span>🎯 Coeficiente de Determinação (R²):</span>
+                        <strong id="r2ValueAgregadores">0.85</strong>
+                    </div>
+                    <div class="detalhe-item">
+                        <span>📐 RMSE (Root Mean Square Error):</span>
+                        <strong id="rmseValueAgregadores">150.25</strong>
+                    </div>
+                    <div class="detalhe-item">
+                        <span>📏 MAE (Mean Absolute Error):</span>
+                        <strong id="maeValueAgregadores">110.30</strong>
+                    </div>
+                    <div class="detalhe-item">
+                        <span>📊 Intervalo de Confiança (90%):</span>
+                        <strong id="intervaloConfiancaAgregadores">0 - 0</strong>
+                    </div>
+                </div>
+
+                <!-- Gráfico Comparativo -->
+                <div class="grafico-container">
+                    <h3>📊 Comparativo de Previsões</h3>
+                    <img id="graficoPrevisao" src="" alt="Gráfico de Previsão Comparativo" style="width: 100%; border-radius: 10px; border: 1px solid #ddd;">
+                    <p style="text-align: center; color: #666; margin-top: 15px; font-size: 1em;">
+                        💡 Comparação entre alunos recorrentes (diretos) e alunos via agregadores (Gympass/Totalpass)
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function mostrarNomeArquivo() {
+            const fileInput = document.getElementById('planilha');
+            const fileNameDiv = document.getElementById('fileName');
+            
+            if (fileInput.files.length > 0) {
+                fileNameDiv.textContent = `📄 Arquivo selecionado: ${fileInput.files[0].name}`;
+            } else {
+                fileNameDiv.textContent = '';
+            }
+        }
+
+        async function fazerPrevisao() {
+            const vagas = document.getElementById('vagas').value;
+            const metragem = document.getElementById('metragem').value;
+            const concorrentes = document.getElementById('concorrentes').value;
+            const planilha = document.getElementById('planilha').files[0];
+
+            // Validar campos obrigatórios
+            if (!vagas || !metragem || !concorrentes) {
+                alert('❌ Por favor, preencha todos os campos da academia!');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('vagas', vagas);
+            formData.append('metragem', metragem);
+            formData.append('concorrentes', concorrentes);
+            
+            if (planilha) {
+                formData.append('planilha', planilha);
+            }
+
+            // Mostrar loading
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('resultado').style.display = 'none';
+            document.getElementById('resultadoAgregadores').style.display = 'none';
+            document.getElementById('resultadoTotal').style.display = 'none';
+            document.getElementById('metricasSection').style.display = 'none';
+
+            try {
+                const response = await fetch('/prever', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                // Esconder loading
+                document.getElementById('loading').style.display = 'none';
+                
+                if (data.status === 'success') {
+                    // Atualizar resultados
+                    document.getElementById('previsaoNumero').textContent = data.previsao_recorrentes;
+                    document.getElementById('previsaoAgregadoresNumero').textContent = data.previsao_agregadores;
+                    document.getElementById('previsaoTotalNumero').textContent = data.total_geral;
+                    
+                    // Mostrar todos os resultados
+                    document.getElementById('resultado').style.display = 'block';
+                    document.getElementById('resultadoAgregadores').style.display = 'block';
+                    document.getElementById('resultadoTotal').style.display = 'block';
+                    
+                    // Mostrar métricas e gráfico (container separado)
+                    document.getElementById('metricasSection').style.display = 'block';
+                    
+                    // Atualizar métricas - Recorrentes
+                    const metricasRecorrentes = data.metricas_recorrentes;
+                    document.getElementById('metricaPrevisaoRecorrentes').textContent = data.previsao_recorrentes;
+                    document.getElementById('metricaR2Recorrentes').textContent = metricasRecorrentes.r2.toFixed(3);
+                    document.getElementById('r2ValueRecorrentes').textContent = metricasRecorrentes.r2.toFixed(4);
+                    document.getElementById('rmseValueRecorrentes').textContent = metricasRecorrentes.rmse.toFixed(2);
+                    document.getElementById('maeValueRecorrentes').textContent = metricasRecorrentes.mae.toFixed(2);
+                    document.getElementById('intervaloConfiancaRecorrentes').textContent = metricasRecorrentes.intervalo_confianca;
+                    
+                    // Atualizar métricas - Agregadores
+                    const metricasAgregadores = data.metricas_agregadores;
+                    document.getElementById('metricaPrevisaoAgregadores').textContent = data.previsao_agregadores;
+                    document.getElementById('metricaR2Agregadores').textContent = metricasAgregadores.r2.toFixed(3);
+                    document.getElementById('r2ValueAgregadores').textContent = metricasAgregadores.r2.toFixed(4);
+                    document.getElementById('rmseValueAgregadores').textContent = metricasAgregadores.rmse.toFixed(2);
+                    document.getElementById('maeValueAgregadores').textContent = metricasAgregadores.mae.toFixed(2);
+                    document.getElementById('intervaloConfiancaAgregadores').textContent = metricasAgregadores.intervalo_confianca;
+                    
+                    // Atualizar gráfico
+                    if (data.grafico) {
+                        document.getElementById('graficoPrevisao').src = 'data:image/png;base64,' + data.grafico;
+                    }
+
+                    // Scroll suave para as métricas
+                    setTimeout(() => {
+                        document.getElementById('metricasSection').scrollIntoView({ 
+                            behavior: 'smooth' 
+                        });
+                    }, 500);
+                } else {
+                    alert('❌ Erro: ' + data.error);
+                }
+            } catch (error) {
+                document.getElementById('loading').style.display = 'none';
+                alert('❌ Erro de conexão: ' + error);
+            }
+        }
+    </script>
+</body>
+</html>
