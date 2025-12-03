@@ -1,9 +1,6 @@
 
 # app.py — Ultra Preditor (produção / Render)
 # Observações:
-# - Inicie com: gunicorn app:app
-# - Coloque index.html em /templates e use name="planilha" no input file
-# - Mantenha os .pkl na mesma pasta
 # - requirements.txt: Flask, pandas, joblib, numpy, matplotlib, gunicorn, openpyxl, scikit-learn, unidecode
 
 from flask import Flask, render_template, request, jsonify
@@ -28,7 +25,7 @@ logger = logging.getLogger(__name__)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # ------------------------------------------------------------------------------
-# Carregamento dos modelos (.pkl precisam existir no mesmo diretório)
+# Carregamento dos modelos 
 # ------------------------------------------------------------------------------
 def _carregar_modelo(caminho_arquivo: str):
     caminho = os.path.join(BASE_DIR, caminho_arquivo)
@@ -49,7 +46,7 @@ features_agregadores = modelo_agregadores_info['features']
 # ------------------------------------------------------------------------------
 # Configurações e mapeamentos
 # ------------------------------------------------------------------------------
-# Atenção: 'Vagas ' tem espaço porque provavelmente foi assim no treinamento
+
 colunas_manuais = ['Vagas ', 'Metragem', 'Quantidade de Concorrentes']
 
 # Palavras-chave para encontrar cada feature demográfica na planilha
@@ -63,11 +60,11 @@ mapa_colunas = {
     'Densidade demográfica': ['densidade demográfica', 'densidade demografica', 'densidade']
 }
 
-# Métricas de referência (da sua validação)
+
 METRICAS_MODELO       = {'r2': 0.8944, 'rmse': 200.44, 'mae': 140.27}
 METRICAS_AGREGADORES  = {'r2': 0.8410, 'rmse': 303.92, 'mae': 185.20}
 
-# Demografias mínimas obrigatórias para rodar com qualidade
+
 OBRIGATORIAS = [
     'Renda média domiciliar',
     'População',
@@ -106,13 +103,13 @@ def _planilha_para_dict(df: pd.DataFrame) -> Dict[str, float]:
 
     # Caso 1: existe coluna de rótulo + coluna numérica (mais comum)
     if df.shape[1] >= 2:
-        # tenta achar a primeira coluna numérica como "valor"
+       
         valor_idx = None
         for j in range(1, min(4, df.shape[1])):
             if pd.api.types.is_numeric_dtype(df.iloc[:, j]):
                 valor_idx = j
                 break
-        # se não encontrar, assume segunda coluna como valor
+       
         if valor_idx is None:
             valor_idx = 1
 
@@ -123,7 +120,7 @@ def _planilha_para_dict(df: pd.DataFrame) -> Dict[str, float]:
                 try:
                     pares[_normalize(r)] = float(v)
                 except Exception:
-                    # tenta converter strings numéricas com vírgula
+                   
                     s = str(v).replace('.', '').replace(',', '.')
                     try:
                         pares[_normalize(r)] = float(s)
@@ -131,7 +128,7 @@ def _planilha_para_dict(df: pd.DataFrame) -> Dict[str, float]:
                         continue
         return pares
 
-    # Caso 2: planilha com 1 única coluna (nome e valor alternados em linhas)
+   
     if df.shape[1] == 1:
         col = df.iloc[:, 0].tolist()
         for i in range(len(col) - 1):
@@ -153,12 +150,12 @@ def _planilha_para_dict(df: pd.DataFrame) -> Dict[str, float]:
 def _buscar_valor(pares: Dict[str, float], feature_nome: str) -> float:
     """busca pelo valor no dicionário usando mapa_colunas e fallback para igualdade aproximada."""
     palavras = mapa_colunas.get(feature_nome, [])
-    # 1) match por palavras-chave (contains)
+
     for chave_norm, valor in pares.items():
         for p in palavras:
             if _normalize(p) in chave_norm:
                 return float(valor)
-    # 2) fallback: igualdade aproximada do nome completo
+  
     alvo = _normalize(feature_nome)
     for chave_norm, valor in pares.items():
         if chave_norm == alvo:
@@ -272,17 +269,17 @@ def prever():
                 "mensagem": "É necessário enviar a planilha demográfica (.xlsx)."
             }), 400
 
-        # Lê planilha (engine openpyxl precisa estar no requirements)
+       
         df = pd.read_excel(planilha, engine="openpyxl", header=None)
         demografia = _planilha_para_dict(df)
         logger.info(f"Chaves demográficas carregadas: {len(demografia)}")
 
-        # Monta entrada e valida faltas — Recorrentes
+       
         valores_rec, faltantes_rec = preparar_dados_entrada(demografia, features, vagas, metragem, concorrentes)
-        # Monta entrada e valida faltas — Agregadores
+       
         valores_agr, faltantes_agr = preparar_dados_entrada(demografia, features_agregadores, vagas, metragem, concorrentes)
 
-        # Se houver faltas obrigatórias, retorna erro 400 com detalhes
+        
         faltas_obrig = sorted(set(faltantes_rec + faltantes_agr))
         if faltas_obrig:
             return jsonify({
@@ -319,7 +316,6 @@ def prever():
         logger.exception("Erro na rota /prever")
         return jsonify({"status": "error", "error": str(e)}), 500
 
-# Não executar app.run() em produção (Render usa gunicorn)
-# if __name__ == "__main__":
-#     app.run(debug=True, host="0.0.0.0", port=5000)
+
+
 
