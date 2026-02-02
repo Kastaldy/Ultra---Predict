@@ -273,46 +273,6 @@
             font-size: 0.9em;
         }
 
-        .metricas-detalhes {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            margin: 25px 0;
-            border: 1px solid #e9ecef;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-
-        .metricas-detalhes h3 {
-            color: #2c3e50;
-            margin-bottom: 20px;
-            border-bottom: 3px solid #ee2493ff;
-            padding-bottom: 12px;
-            font-size: 1.4em;
-        }
-
-        .detalhe-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 15px 0;
-            border-bottom: 1px solid #e9ecef;
-            align-items: center;
-            font-size: 1.1em;
-        }
-
-        .detalhe-item:last-child {
-            border-bottom: none;
-        }
-
-        .detalhe-item span {
-            color: #2c3e50;
-            font-weight: 500;
-        }
-
-        .detalhe-item strong {
-            color:  #ee2493ff;
-            font-size: 1.1em;
-        }
-
         .grafico-container {
             background: white;
             padding: 30px;
@@ -409,26 +369,28 @@
                 <p>Calculando previsão...</p>
             </div>
 
-            <!-- Resultado Recorrentes -->
-            <div class="resultado recorrentes" id="resultado">
-                <h3>✅ Previsão Alunos Recorrentes</h3>
-                <div class="resultado-numero" id="previsaoNumero">0</div>
-                <p>alunos previstos diretamente na academia</p>
-            </div>
+            <section style="display: grid; grid-template-columns: repeat(3,1fr); gap: 10px;"
+                <!-- Resultado Recorrentes -->
+                <div class="resultado recorrentes" id="resultado">
+                    <h3>✅ Previsão Alunos Recorrentes</h3>
+                    <div class="resultado-numero" id="previsaoNumero">0</div>
+                    <p>alunos previstos diretamente na academia</p>
+                </div>
+    
+                <!-- Resultado Agregadores -->
+                <div class="resultado agregadores" id="resultadoAgregadores" style="display: none;">
+                    <h3>✅ Previsão Agregadores (Gympass/Totalpass)</h3>
+                    <div class="resultado-numero" id="previsaoAgregadoresNumero">0</div>
+                    <p>alunos previstos via agregadores</p>
+                </div>
 
-            <!-- Resultado Agregadores -->
-            <div class="resultado agregadores" id="resultadoAgregadores" style="display: none;">
-                <h3>✅ Previsão Agregadores (Gympass/Totalpass)</h3>
-                <div class="resultado-numero" id="previsaoAgregadoresNumero">0</div>
-                <p>alunos previstos via agregadores</p>
-            </div>
-
-            <!-- Resultado Total -->
-            <div class="resultado total" id="resultadoTotal" style="display: none;">
-                <h3>🏆 Total Geral de Alunos</h3>
-                <div class="resultado-numero" id="previsaoTotalNumero">0</div>
-                <p>alunos totais previstos (recorrentes + agregadores)</p>
-            </div>
+                <!-- Resultado Total -->
+                <div class="resultado total" id="resultadoTotal" style="display: none;">
+                    <h3>🏆 Total Geral de Alunos</h3>
+                    <div class="resultado-numero" id="previsaoTotalNumero">0</div>
+                    <p>alunos totais previstos (recorrentes + agregadores)</p>
+                </div>
+            </section>
         </div>
     </div>
 
@@ -472,48 +434,6 @@
                         <div class="metrica-value" id="metricaPrevisaoAgregadores">0</div>
                         <div class="metrica-label">Previsão Agregadores</div>
                         <div class="metrica-desc">Gympass/Totalpass</div>
-                    </div>
-                </div>
-
-                <!-- Detalhes das Métricas - Recorrentes -->
-                <div class="metricas-detalhes">
-                    <h3>📋 Estatísticas Detalhadas - Recorrentes</h3>
-                    <div class="detalhe-item">
-                        <span>🎯 Coeficiente de Determinação (R²):</span>
-                        <strong id="r2ValueRecorrentes">0.894</strong>
-                    </div>
-                    <div class="detalhe-item">
-                        <span>📐 RMSE (Erro Quadrático Médio):</span>
-                        <strong id="rmseValueRecorrentes">200.44</strong>
-                    </div>
-                    <div class="detalhe-item">
-                        <span>📏 MAE (Erro Médio Absoluto):</span>
-                        <strong id="maeValueRecorrentes">140.27</strong>
-                    </div>
-                    <div class="detalhe-item">
-                        <span>📊 Intervalo de Confiança (90%):</span>
-                        <strong id="intervaloConfiancaRecorrentes">0 - 0</strong>
-                    </div>
-                </div>
-
-                <!-- Detalhes das Métricas - Agregadores -->
-                <div class="metricas-detalhes">
-                    <h3>📋 Estatísticas Detalhadas - Agregadores</h3>
-                    <div class="detalhe-item">
-                        <span>🎯 Coeficiente de Determinação (R²):</span>
-                        <strong id="r2ValueAgregadores">0.841</strong>
-                    </div>
-                    <div class="detalhe-item">
-                        <span>📐 RMSE (Erro Quadrático Médio):</span>
-                        <strong id="rmseValueAgregadores">185.20</strong>
-                    </div>
-                    <div class="detalhe-item">
-                        <span>📏 MAE (Erro Médio Absoluto):</span>
-                        <strong id="maeValueAgregadores">303.92</strong>
-                    </div>
-                    <div class="detalhe-item">
-                        <span>📊 Intervalo de Confiança (90%):</span>
-                        <strong id="intervaloConfiancaAgregadores">0 - 0</strong>
                     </div>
                 </div>
 
@@ -598,19 +518,11 @@
                     const metricasRecorrentes = data.metricas_recorrentes;
                     document.getElementById('metricaPrevisaoRecorrentes').textContent = data.previsao_recorrentes;
                     document.getElementById('metricaR2Recorrentes').textContent = metricasRecorrentes.r2.toFixed(3);
-                    document.getElementById('r2ValueRecorrentes').textContent = metricasRecorrentes.r2.toFixed(4);
-                    document.getElementById('rmseValueRecorrentes').textContent = metricasRecorrentes.rmse.toFixed(2);
-                    document.getElementById('maeValueRecorrentes').textContent = metricasRecorrentes.mae.toFixed(2);
-                    document.getElementById('intervaloConfiancaRecorrentes').textContent = metricasRecorrentes.intervalo_confianca;
                     
                     // Atualizar métricas - Agregadores
                     const metricasAgregadores = data.metricas_agregadores;
                     document.getElementById('metricaPrevisaoAgregadores').textContent = data.previsao_agregadores;
                     document.getElementById('metricaR2Agregadores').textContent = metricasAgregadores.r2.toFixed(3);
-                    document.getElementById('r2ValueAgregadores').textContent = metricasAgregadores.r2.toFixed(4);
-                    document.getElementById('rmseValueAgregadores').textContent = metricasAgregadores.rmse.toFixed(2);
-                    document.getElementById('maeValueAgregadores').textContent = metricasAgregadores.mae.toFixed(2);
-                    document.getElementById('intervaloConfiancaAgregadores').textContent = metricasAgregadores.intervalo_confianca;
                     
                     // Atualizar gráfico
                     if (data.grafico) {
