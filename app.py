@@ -62,7 +62,7 @@ mapa_colunas = {
 
 
 METRICAS_MODELO       = {'r2': 0.8944, 'rmse': 200.44, 'mae': 140.27}
-METRICAS_AGREGADORES  = {'r2': 0.8410, 'rmse': 303.92, 'mae': 185.20}
+METRICAS_AGREGADORES  = {'r2': 0.8410, 'rmse': 263.92, 'mae': 185.20}
 
 
 OBRIGATORIAS = [
@@ -315,6 +315,7 @@ def prever():
     except Exception as e:
         logger.exception("Erro na rota /prever")
         return jsonify({"status": "error", "error": str(e)}), 500
+
 
 
 
